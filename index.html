@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#102a43">
+<title>Meu Financeiro</title>
+<style>
+:root{--navy:#102a43;--blue:#2563eb;--bg:#f3f6fa;--card:#fff;--text:#172b4d;--muted:#64748b;--green:#12805c;--red:#c0394b;--line:#e5eaf1;--amber:#b7791f}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px system-ui,-apple-system,Segoe UI,Roboto,sans-serif;padding-bottom:86px}
+header{background:linear-gradient(135deg,#102a43,#174b70);color:white;padding:24px 18px 22px;border-radius:0 0 24px 24px}
+header .top{display:flex;justify-content:space-between;align-items:center;gap:12px}h1{font-size:23px;margin:0;font-weight:750}header p{margin:6px 0 0;color:#d5e5f2;font-size:13px}
+.wrap{max-width:760px;margin:auto;padding:16px}.summary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:-4px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:15px;box-shadow:0 3px 12px #102a4308;margin-bottom:12px}
+.metric small{display:block;color:var(--muted);font-size:12px}.metric strong{display:block;font-size:20px;margin-top:5px;overflow-wrap:anywhere}.metric .sub{font-size:11px;color:var(--muted);margin-top:3px}
+.green{color:var(--green)}.red{color:var(--red)}.blue{color:var(--blue)}
+h2{font-size:17px;margin:0 0 13px}h3{font-size:14px;margin:0 0 8px}
+nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);display:flex;justify-content:space-around;padding:8px 3px calc(8px + env(safe-area-inset-bottom));z-index:5}
+nav button{background:none;color:var(--muted);padding:7px 5px;font-size:11px;min-width:0;flex:1;border:0}nav button.active{color:var(--blue);font-weight:750}nav span{display:block;font-size:19px;margin-bottom:2px}
+section.page{display:none}section.page.active{display:block}
+label{display:block;font-size:12px;font-weight:650;color:#52647a;margin:10px 0 5px}
+input,select{width:100%;padding:12px;border:1px solid #d6dee8;border-radius:10px;background:white;color:var(--text);font:inherit;min-height:44px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+button{border:0;border-radius:10px;background:var(--blue);color:white;padding:12px 15px;font:inherit;font-weight:700;cursor:pointer}
+button.secondary{background:#eaf1ff;color:#1d4ed8}button.danger{background:#fff0f1;color:var(--red)}button.ghost{background:#eef2f6;color:#334155}
+button.full{width:100%;margin-top:14px}
+.filters{display:grid;grid-template-columns:1fr 1fr;gap:9px}.filters .wide{grid-column:1/-1}
+.item{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}.item:last-child{border:0}.item strong{display:block;font-size:14px}.item small{display:block;color:var(--muted);margin-top:3px;font-size:12px}.item .right{text-align:right;white-space:nowrap}.item .right b{display:block}.item-actions{display:flex;gap:5px;margin-top:5px;justify-content:flex-end}.item-actions button{font-size:11px;padding:5px 8px}
+.pill{font-size:10px;border-radius:20px;padding:3px 7px;background:#edf2f7;color:#52647a}
+.bar{height:9px;background:#e8edf4;border-radius:10px;overflow:hidden;margin:10px 0}.bar>i{display:block;height:100%;background:var(--blue);border-radius:10px}
+.notice{padding:12px;border-radius:12px;background:#eff6ff;color:#1e40af;font-size:13px;margin-top:10px}.notice.good{background:#eaf8f1;color:#116149}.notice.bad{background:#fff0f1;color:#a52839}
+.muted{color:var(--muted);font-size:12px}.empty{text-align:center;color:var(--muted);padding:22px 8px}
+.yeargrid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}.month{padding:11px;border:1px solid var(--line);border-radius:12px;background:#fff}.month b{display:block;font-size:13px}.month small{display:block;color:var(--muted);margin-top:4px}
+hr{border:0;border-top:1px solid var(--line);margin:14px 0}
+@media(min-width:600px){.summary{grid-template-columns:repeat(4,1fr)}.yeargrid{grid-template-columns:repeat(3,1fr)}}
+</style>
+</head>
+<body>
+<header><div class="top"><div><h1>Meu Financeiro</h1><p>Organize entradas, compromissos e seus próximos passos.</p></div><div style="font-size:28px">📊</div></div></header>
+<div class="wrap">
+<section id="dashboard" class="page active">
+ <div class="summary">
+  <div class="card metric"><small>Entradas no período</small><strong class="green" id="kIn">R$ 0,00</strong><div class="sub">Valores a receber</div></div>
+  <div class="card metric"><small>Despesas no período</small><strong class="red" id="kOut">R$ 0,00</strong><div class="sub">Dívidas e compromissos</div></div>
+  <div class="card metric"><small>Saldo previsto</small><strong id="kBalance">R$ 0,00</strong><div class="sub">Entradas menos despesas</div></div>
+  <div class="card metric"><small>Saldo acumulado</small><strong id="kAll">R$ 0,00</strong><div class="sub">Todos os lançamentos</div></div>
+ </div>
+ <div class="card"><h2>Visão do período</h2><div class="filters">
+  <div><label>Data inicial</label><input type="date" id="from"></div><div><label>Data final</label><input type="date" id="to"></div>
+  <div class="wide"><label>Atalho de período</label><select id="preset"><option value="month">Mês atual</option><option value="next30">Próximos 30 dias</option><option value="year">Ano atual</option><option value="all">Todo o período</option><option value="custom">Personalizado</option></select></div>
+ </div><div id="periodStatus" class="notice">Informe lançamentos para visualizar seu saldo previsto.</div></div>
+ <div class="card"><h2>Próximos lançamentos</h2><div id="upcoming"></div></div>
+</section>
+<section id="entries" class="page">
+ <div class="card"><h2 id="formTitle">Adicionar lançamento</h2>
+  <input type="hidden" id="editId">
+  <label>Tipo</label><select id="type"><option value="out">Despesa / dívida</option><option value="in">Entrada / valor a receber</option></select>
+  <label>Descrição</label><input id="desc" placeholder="Ex.: aluguel, salário, cartão">
+  <div class="grid2"><div><label>Valor (R$)</label><input id="amount" type="number" min="0.01" step="0.01" placeholder="0,00"></div><div><label>Data de vencimento/recebimento</label><input id="date" type="date"></div></div>
+  <label>Categoria (opcional)</label><input id="category" placeholder="Ex.: moradia, alimentação, salário">
+  <button class="full" onclick="saveEntry()">Salvar lançamento</button><button id="cancelEdit" class="full ghost" style="display:none" onclick="resetForm()">Cancelar edição</button>
+ </div>
+ <div class="card"><h2>Lançamentos registrados</h2><div class="filters"><div><label>Tipo</label><select id="listType"><option value="all">Todos</option><option value="in">Entradas</option><option value="out">Despesas</option></select></div><div><label>Ordenar</label><select id="sort"><option value="date">Data</option><option value="amount">Valor</option></select></div></div><div id="entryList"></div></div>
+</section>
+<section id="simulation" class="page">
+ <div class="card"><h2>Simulador de empréstimo</h2><p class="muted">Simule um crédito e veja o efeito das parcelas sobre os lançamentos já registrados. A simulação não altera seus dados.</p>
+ <label>Valor do empréstimo (R$)</label><input id="loan" type="number" min="0" step="0.01" placeholder="Ex.: 5000">
+ <div class="grid2"><div><label>Taxa de juros mensal (%)</label><input id="rate" type="number" min="0" step="0.01" value="2.5"></div><div><label>Número de parcelas</label><input id="terms" type="number" min="1" max="600" value="12"></div></div>
+ <div class="grid2"><div><label>Data da 1ª parcela</label><input id="firstPay" type="date"></div><div><label>Dia de recebimento do empréstimo</label><input id="loanDate" type="date"></div></div>
+ <button class="full" onclick="simulate()">Calcular impacto</button><div id="simResult"></div>
+ </div>
+ <div class="card"><h2>Como interpretar</h2><p class="muted">O cálculo usa parcelas fixas pelo sistema Price. O valor líquido do empréstimo é somado como entrada na data informada; as parcelas são adicionadas às despesas nas datas calculadas. Tarifas, seguros, IOF e outras cobranças não estão incluídos, salvo se refletidos na taxa informada.</p></div>
+</section>
+<section id="annual" class="page">
+ <div class="card"><h2>Planejamento anual</h2><label>Ano</label><select id="yearSelect"></select><div class="summary" style="margin-top:12px">
+ <div class="metric"><small>Entradas previstas</small><strong class="green" id="yIn">R$ 0,00</strong></div><div class="metric"><small>Despesas previstas</small><strong class="red" id="yOut">R$ 0,00</strong></div><div class="metric"><small>Saldo do ano</small><strong id="yBal">R$ 0,00</strong></div><div class="metric"><small>Meses negativos</small><strong id="yNeg">0</strong></div></div>
+ <hr><div id="months" class="yeargrid"></div></div>
+ <div class="card"><h2>Exportar para Excel</h2><p class="muted">Exporta os cadastros e um resumo visual com indicadores, tabela mensal e gráficos de entradas, despesas e evolução do saldo.</p><button class="full secondary" onclick="exportExcelCadastros()">Exportar cadastros + resumo visual (.xlsx)</button></div>
+ <div class="card"><h2>Importar planilha Excel</h2><p class="muted">Importe uma planilha exportada pelo Meu Financeiro. Os novos lançamentos serão adicionados aos atuais; registros com ID já existente serão ignorados para evitar duplicidades.</p><label>Selecionar planilha (.xlsx)</label><input type="file" id="excelImportFile" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"><button class="full secondary" onclick="importExcel()">Importar lançamentos do Excel</button><div id="excelImportStatus" class="muted" aria-live="polite"></div></div>
+ <div class="card"><h2>Backup dos dados</h2><p class="muted">Os lançamentos ficam salvos neste navegador. Exporte uma cópia para guardar ou importar em outro aparelho.</p><button class="full secondary" onclick="exportData()">Exportar backup (.json)</button><label>Importar backup</label><input type="file" id="importFile" accept="application/json"><button class="full ghost" onclick="importData()">Importar arquivo</button><button class="full danger" onclick="clearData()">Apagar todos os lançamentos</button></div>
+</section>
+</div>
+<nav>
+ <button class="active" data-page="dashboard" onclick="showPage('dashboard',this)"><span>⌂</span>Resumo</button>
+ <button data-page="entries" onclick="showPage('entries',this)"><span>＋</span>Lançamentos</button>
+ <button data-page="simulation" onclick="showPage('simulation',this)"><span>∿</span>Simular</button>
+ <button data-page="annual" onclick="showPage('annual',this)"><span>▦</span>Anual</button>
+</nav>
+<script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script>
+const KEY='meuFinanceiro.v1';let entries=JSON.parse(localStorage.getItem(KEY)||'[]');let filterStart='',filterEnd='';
+const $=id=>document.getElementById(id);
+const money=n=>Number(n||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+const iso=d=>{let x=new Date(d);return new Date(x.getTime()-x.getTimezoneOffset()*60000).toISOString().slice(0,10)};
+const today=()=>iso(new Date());
+function persist(){localStorage.setItem(KEY,JSON.stringify(entries));renderAll()}
+function showPage(id,btn){document.querySelectorAll('section.page').forEach(s=>s.classList.remove('active'));$(id).classList.add('active');document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));(btn||document.querySelector('nav button[data-page="'+id+'"]')).classList.add('active');renderAll()}
+function inRange(e,a,b){return (!a||e.date>=a)&&(!b||e.date<=b)}
+function totals(list){return list.reduce((o,e)=>(o[e.type]+=Number(e.amount),o),{in:0,out:0})}
+function renderDashboard(){
+ let list=entries.filter(e=>inRange(e,$('from').value,$('to').value)),t=totals(list),all=totals(entries),bal=t.in-t.out;
+ $('kIn').textContent=money(t.in);$('kOut').textContent=money(t.out);$('kBalance').textContent=money(bal);$('kBalance').className=bal>=0?'green':'red';$('kAll').textContent=money(all.in-all.out);$('kAll').className=all.in>=all.out?'green':'red';
+ let status=$('periodStatus');status.className='notice '+(bal>=0?'good':'bad');status.textContent=bal>=0?`Neste período, a previsão é de SOBRA de ${money(bal)}.`:`Neste período, a previsão é de FALTA de ${money(Math.abs(bal))}.`;
+ let upcoming=entries.filter(e=>e.date>=today()).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,6);
+ $('upcoming').innerHTML=upcoming.length?upcoming.map(e=>itemHTML(e,false)).join(''):'<div class="empty">Nenhum lançamento futuro registrado.</div>';
+}
+function itemHTML(e,actions=true){return `<div class="item"><div><strong>${esc(e.desc||'Sem descrição')} <span class="pill">${e.type==='in'?'Entrada':'Despesa'}</span></strong><small>${fmtDate(e.date)}${e.category?' · '+esc(e.category):''}</small></div><div class="right"><b class="${e.type==='in'?'green':'red'}">${e.type==='in'?'+':'−'} ${money(e.amount)}</b>${actions?`<div class="item-actions"><button class="secondary" onclick="editEntry('${e.id}')">Editar</button><button class="danger" onclick="deleteEntry('${e.id}')">Excluir</button></div>`:''}</div></div>`}
+function fmtDate(s){return s?new Date(s+'T12:00:00').toLocaleDateString('pt-BR'):'—'}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function renderEntries(){let list=entries.filter(e=>$('listType').value==='all'||e.type===$('listType').value);list.sort((a,b)=>$('sort').value==='amount'?b.amount-a.amount:a.date.localeCompare(b.date));$('entryList').innerHTML=list.length?list.map(e=>itemHTML(e,true)).join(''):'<div class="empty">Ainda não há lançamentos.</div>'}
+function saveEntry(){let id=$('editId').value,desc=$('desc').value.trim(),amount=Number($('amount').value),date=$('date').value;if(!desc||!(amount>0)||!date){alert('Preencha descrição, valor maior que zero e data.');return}let obj={id:id||String(Date.now()),type:$('type').value,desc,amount,date,category:$('category').value.trim()};if(id)entries=entries.map(e=>e.id===id?obj:e);else entries.push(obj);resetForm();persist();showPage('entries')}
+function editEntry(id){let e=entries.find(x=>x.id===id);if(!e)return;$('editId').value=e.id;$('type').value=e.type;$('desc').value=e.desc;$('amount').value=e.amount;$('date').value=e.date;$('category').value=e.category||'';$('formTitle').textContent='Editar lançamento';$('cancelEdit').style.display='block';window.scrollTo({top:0,behavior:'smooth'})}
+function resetForm(){['editId','desc','amount','date','category'].forEach(id=>$(id).value='');$('formTitle').textContent='Adicionar lançamento';$('cancelEdit').style.display='none'}
+function deleteEntry(id){if(confirm('Excluir este lançamento?')){entries=entries.filter(e=>e.id!==id);persist()}}
+function setPreset(){let p=$('preset').value,now=new Date(),start=new Date(now.getFullYear(),now.getMonth(),1),end=new Date(now.getFullYear(),now.getMonth()+1,0);if(p==='month'){$('from').value=iso(start);$('to').value=iso(end)}else if(p==='next30'){$('from').value=today();let d=new Date();d.setDate(d.getDate()+30);$('to').value=iso(d)}else if(p==='year'){$('from').value=now.getFullYear()+'-01-01';$('to').value=now.getFullYear()+'-12-31'}else if(p==='all'){$('from').value='';$('to').value=''}renderDashboard()}
+function simulate(){
+ let principal=Number($('loan').value),rate=Number($('rate').value)/100,n=Math.floor(Number($('terms').value)),first=$('firstPay').value,loanDate=$('loanDate').value;
+ if(!(principal>0)||!(n>0)||!first||!loanDate){alert('Informe valor, parcelas e as duas datas.');return}
+ let payment=rate===0?principal/n:principal*rate/(1-Math.pow(1+rate,-n)),sim=entries.map(e=>({...e}));sim.push({id:'loan',type:'in',amount:principal,date:loanDate,desc:'Crédito simulado'});let schedule=[];
+ for(let i=0;i<n;i++){let d=new Date(first+'T12:00:00');d.setMonth(d.getMonth()+i);let date=iso(d);schedule.push({date,amount:payment});sim.push({id:'p'+i,type:'out',amount:payment,date,desc:'Parcela do empréstimo'})}
+ let start=entries.length?entries.map(e=>e.date).concat([loanDate,first]).sort()[0]:loanDate,end=schedule[schedule.length-1].date;let months=[];let cur=new Date(start.slice(0,7)+'-01T12:00:00'),last=new Date(end.slice(0,7)+'-01T12:00:00');
+ while(cur<=last){let a=iso(new Date(cur.getFullYear(),cur.getMonth(),1)),b=iso(new Date(cur.getFullYear(),cur.getMonth()+1,0)),t=totals(sim.filter(e=>inRange(e,a,b)));months.push({label:cur.toLocaleDateString('pt-BR',{month:'short',year:'numeric'}),bal:t.in-t.out});cur.setMonth(cur.getMonth()+1)}
+ let worst=months.reduce((a,b)=>b.bal<a.bal?b:a,months[0]);$('simResult').innerHTML=`<div class="notice">Parcela estimada: <b>${money(payment)}</b><br>Total pago: <b>${money(payment*n)}</b><br>Juros estimados: <b>${money(payment*n-principal)}</b></div><h3 style="margin-top:15px">Saldo mensal com o empréstimo</h3>${months.map(m=>`<div class="item"><div><strong>${m.label}</strong></div><div class="right"><b class="${m.bal>=0?'green':'red'}">${money(m.bal)}</b></div></div>`).join('')}<div class="notice ${worst.bal>=0?'good':'bad'}">Pior saldo mensal projetado: <b>${money(worst.bal)}</b> (${worst.label}). ${worst.bal>=0?'O fluxo mensal permanece positivo nos meses simulados.':'Há pelo menos um mês com déficit; avalie reduzir a parcela ou rever o orçamento.'}</div>`;
+}
+function renderAnnual(){let y=Number($('yearSelect').value),yearEntries=entries.filter(e=>e.date.startsWith(y+'-')),t=totals(yearEntries),neg=0;$('yIn').textContent=money(t.in);$('yOut').textContent=money(t.out);$('yBal').textContent=money(t.in-t.out);$('yBal').className=t.in>=t.out?'green':'red';let html=[];for(let m=0;m<12;m++){let a=`${y}-${String(m+1).padStart(2,'0')}-01`,b=iso(new Date(y,m+1,0)),mt=totals(yearEntries.filter(e=>inRange(e,a,b))),bal=mt.in-mt.out;if(bal<0)neg++;let max=Math.max(mt.in,mt.out,1);html.push(`<div class="month"><b>${new Date(y,m,1).toLocaleDateString('pt-BR',{month:'long'})}</b><small>Entradas: ${money(mt.in)}</small><small>Despesas: ${money(mt.out)}</small><div class="bar"><i style="width:${Math.min(100,Math.abs(bal)/max*100)}%;background:${bal>=0?'#12805c':'#c0394b'}"></i></div><strong class="${bal>=0?'green':'red'}">${bal>=0?'Sobra ':'Falta '}${money(Math.abs(bal))}</strong></div>`)}$('yNeg').textContent=neg;$('months').innerHTML=html.join('')}
+async function exportExcelCadastros(){
+ if(!window.ExcelJS||!window.Chart){alert('Não foi possível carregar os componentes de Excel e gráficos. Verifique sua conexão com a internet e tente novamente.');return}
+ const btn=document.querySelector('button[onclick="exportExcelCadastros()"]');
+ if(btn){btn.disabled=true;btn.textContent='Gerando planilha...'}
+ try{
+  const workbook=new ExcelJS.Workbook();workbook.creator='Meu Financeiro';workbook.created=new Date();
+  const cad=workbook.addWorksheet('Cadastros',{views:[{state:'frozen',ySplit:1}]});
+  cad.columns=[{header:'ID',key:'id',width:24},{header:'Data',key:'date',width:15},{header:'Tipo',key:'type',width:14},{header:'Descrição',key:'desc',width:34},{header:'Categoria',key:'category',width:24},{header:'Valor (R$)',key:'amount',width:17}];
+  cad.getRow(1).font={bold:true,color:{argb:'FFFFFFFF'}};cad.getRow(1).fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF174B70'}};cad.autoFilter='A1:F1';
+  entries.slice().sort((a,b)=>a.date.localeCompare(b.date)).forEach(e=>{const row=cad.addRow({id:String(e.id),date:e.date,type:e.type==='in'?'Entrada':'Despesa',desc:e.desc||'',category:e.category||'',amount:Number(e.amount)});row.getCell(2).numFmt='dd/mm/yyyy';row.getCell(2).value=new Date(e.date+'T12:00:00');row.getCell(6).numFmt='R$ #,##0.00';row.getCell(6).alignment={horizontal:'right'};});
+  cad.eachRow((row,i)=>{if(i>1&&i%2===0)row.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FFF3F6FA'}}});
+
+  const resumo=workbook.addWorksheet('Resumo visual',{views:[{showGridLines:false}]});
+  resumo.columns=[{width:25},{width:19},{width:19},{width:19},{width:4},{width:20},{width:20},{width:20}];
+  resumo.mergeCells('A1:H1');resumo.getCell('A1').value='MEU FINANCEIRO | RESUMO VISUAL';resumo.getCell('A1').font={bold:true,size:18,color:{argb:'FFFFFFFF'}};resumo.getCell('A1').fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF102A43'}};resumo.getRow(1).height=32;
+  const a=$('from').value,b=$('to').value,periodLabel=(a?fmtDate(a):'Início')+' até '+(b?fmtDate(b):'Fim');
+  const filtered=entries.filter(e=>inRange(e,a,b)),t=totals(filtered),balance=t.in-t.out;
+  resumo.mergeCells('A3:H3');resumo.getCell('A3').value='Período do resumo: '+periodLabel;resumo.getCell('A3').font={italic:true,color:{argb:'FF64748B'}};
+  const cards=[['A5:B5','A6:B7','RECEITAS',t.in,'FF12805C'],['C5:D5','C6:D7','DESPESAS',t.out,'FFC0394B'],['E5:F5','E6:F7','SALDO DO PERÍODO',balance,balance>=0?'FF12805C':'FFC0394B'],['G5:H5','G6:H7','LANÇAMENTOS',filtered.length,'FF2563EB']];
+  cards.forEach(([head,body,label,value,color])=>{resumo.mergeCells(head);resumo.mergeCells(body);const h=resumo.getCell(head.split(':')[0]);h.value=label;h.font={bold:true,color:{argb:'FFFFFFFF'},size:10};h.alignment={horizontal:'center'};h.fill={type:'pattern',pattern:'solid',fgColor:{argb:color}};const c=resumo.getCell(body.split(':')[0]);c.value=value;c.font={bold:true,size:16,color:{argb:color}};c.alignment={horizontal:'center',vertical:'middle'};c.numFmt=typeof value==='number'&&label!=='LANÇAMENTOS'?'R$ #,##0.00':'#,##0';});
+  resumo.getRow(6).height=24;resumo.getRow(7).height=18;
+  const year=Number($('yearSelect').value)||new Date().getFullYear(),months=[];let cumulative=0;
+  for(let m=0;m<12;m++){const yy=String(year),mm=String(m+1).padStart(2,'0'),from=yy+'-'+mm+'-01',to=iso(new Date(year,m+1,0)),mt=totals(entries.filter(e=>inRange(e,from,to)));cumulative+=mt.in-mt.out;months.push({month:new Date(year,m,1).toLocaleDateString('pt-BR',{month:'short'}),income:mt.in,expense:mt.out,balance:mt.in-mt.out,cumulative});}
+  resumo.mergeCells('A9:D9');resumo.getCell('A9').value='DESEMPENHO MENSAL — '+year;resumo.getCell('A9').font={bold:true,color:{argb:'FF174B70'},size:12};
+  ['Mês','Entradas (R$)','Despesas (R$)','Saldo mensal (R$)','Saldo acumulado (R$)'].forEach((v,i)=>{resumo.getCell(10,i+1).value=v;resumo.getCell(10,i+1).font={bold:true,color:{argb:'FFFFFFFF'}};resumo.getCell(10,i+1).fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF174B70'}}});
+  months.forEach((m,i)=>{const r=11+i;[m.month,m.income,m.expense,m.balance,m.cumulative].forEach((v,j)=>{resumo.getCell(r,j+1).value=v;if(j>0)resumo.getCell(r,j+1).numFmt='R$ #,##0.00';if(i%2===1)resumo.getCell(r,j+1).fill={type:'pattern',pattern:'solid',fgColor:{argb:'FFF3F6FA'}}})});
+  // Gera gráficos como imagens incorporadas na planilha, compatíveis com Excel e LibreOffice.
+  const makeChart=(type,labels,datasets,options={})=>{const canvas=document.createElement('canvas');canvas.width=1000;canvas.height=480;const ctx=canvas.getContext('2d');const chart=new Chart(ctx,{type,data:{labels,datasets},options:{responsive:false,animation:false,plugins:{legend:{position:'bottom'},title:{display:true,text:options.title||''}},scales:type==='doughnut'?{}:{y:{beginAtZero:true,ticks:{callback:v=>'R$ '+Number(v).toLocaleString('pt-BR')}}}}});chart.update();const data=canvas.toDataURL('image/png');chart.destroy();return workbook.addImage({base64:data,extension:'png'})};
+  const monthlyLabels=months.map(m=>m.month);
+  const incomeChart=makeChart('bar',monthlyLabels,[{label:'Entradas',data:months.map(m=>m.income),backgroundColor:'#12805C'},{label:'Despesas',data:months.map(m=>m.expense),backgroundColor:'#C0394B'}],{title:'Entradas x despesas por mês'});
+  resumo.addImage(incomeChart,{tl:{col:0,row:27},ext:{width:620,height:298}});
+  const balanceChart=makeChart('line',monthlyLabels,[{label:'Saldo mensal',data:months.map(m=>m.balance),borderColor:'#2563EB',backgroundColor:'#2563EB',tension:.25,fill:false},{label:'Saldo acumulado',data:months.map(m=>m.cumulative),borderColor:'#D97706',backgroundColor:'#D97706',tension:.25,fill:false}],{title:'Evolução do saldo mensal e acumulado'});
+  resumo.addImage(balanceChart,{tl:{col:4,row:27},ext:{width:620,height:298}});
+  resumo.mergeCells('A44:H44');resumo.getCell('A44').value='Os indicadores do topo respeitam o período selecionado no aplicativo. Os gráficos e a tabela mensal apresentam o ano escolhido na tela Planejamento anual.';resumo.getCell('A44').font={italic:true,size:9,color:{argb:'FF64748B'}};resumo.getCell('A44').alignment={wrapText:true};
+  const buffer=await workbook.xlsx.writeBuffer();const blob=new Blob([buffer],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});const url=URL.createObjectURL(blob);const link=document.createElement('a');link.href=url;link.download='meu-financeiro-resumo-visual.xlsx';link.click();setTimeout(()=>URL.revokeObjectURL(url),1500);
+ }catch(err){console.error(err);alert('Não foi possível gerar a planilha. Verifique se o navegador está atualizado e tente novamente.')}finally{if(btn){btn.disabled=false;btn.textContent='Exportar cadastros + resumo visual (.xlsx)'}}
+}
+
+function excelDateToISO(value){
+ if(value instanceof Date && !isNaN(value)) return iso(value);
+ if(typeof value==='number' && window.ExcelJS && ExcelJS.DateUtils){
+  const d=ExcelJS.DateUtils.excelToDate(value);if(d&&!isNaN(d))return iso(d);
+ }
+ if(typeof value==='string'){
+  const s=value.trim();
+  if(/^\d{4}-\d{2}-\d{2}$/.test(s))return s;
+  const br=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if(br)return `${br[3]}-${br[2].padStart(2,'0')}-${br[1].padStart(2,'0')}`;
+ }
+ return '';
+}
+async function importExcel(){
+ const file=$('excelImportFile').files[0],status=$('excelImportStatus'),btn=document.querySelector('button[onclick="importExcel()"]');
+ if(!file){alert('Selecione uma planilha Excel (.xlsx).');return}
+ if(!window.ExcelJS){alert('Não foi possível carregar o leitor de Excel. Verifique sua conexão com a internet e tente novamente.');return}
+ if(btn){btn.disabled=true;btn.textContent='Validando planilha...'}
+ status.textContent='Lendo e validando os lançamentos...';
+ try{
+  const wb=new ExcelJS.Workbook();
+  await wb.xlsx.load(await file.arrayBuffer());
+  const ws=wb.getWorksheet('Cadastros')||wb.worksheets[0];
+  if(!ws||ws.rowCount<2)throw new Error('A planilha não contém linhas de cadastro.');
+  const headers={};
+  ws.getRow(1).eachCell((cell,col)=>{headers[String(cell.text||cell.value||'').trim().toLowerCase()]=col});
+  const required=['id','data','tipo','descrição','valor (r$)'];
+  const missing=required.filter(h=>!headers[h]);
+  if(missing.length)throw new Error('A aba Cadastros precisa conter as colunas: ID, Data, Tipo, Descrição e Valor (R$).');
+  const imported=[],seenFile=new Set(),errors=[];
+  for(let r=2;r<=ws.rowCount;r++){
+   const row=ws.getRow(r);
+   const rawId=row.getCell(headers['id']).value;
+   const id=String(rawId??'').trim();
+   const date=excelDateToISO(row.getCell(headers['data']).value);
+   const rawType=String(row.getCell(headers['tipo']).text||row.getCell(headers['tipo']).value||'').trim().toLowerCase();
+   const type=rawType==='entrada'||rawType==='in'?'in':rawType==='despesa'||rawType==='out'?'out':'';
+   const desc=String(row.getCell(headers['descrição']).text||row.getCell(headers['descrição']).value||'').trim();
+   const rawAmount=row.getCell(headers['valor (r$)']).value;
+   const amount=typeof rawAmount==='number'?rawAmount:Number(String(rawAmount??'').replace(/\s/g,'').replace(/\.(?=\d{3}(?:\D|$))/g,'').replace(',','.'));
+   const catCol=headers['categoria'],category=catCol?String(row.getCell(catCol).text||row.getCell(catCol).value||'').trim():'';
+   const empty=!id&&!date&&!desc&&!rawAmount&&!rawType;
+   if(empty)continue;
+   if(!id||!date||!type||!desc||!Number.isFinite(amount)||amount<=0){
+    errors.push(`Linha ${r}: dados obrigatórios inválidos.`);continue;
+   }
+   if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||isNaN(new Date(date+'T12:00:00').getTime())){
+    errors.push(`Linha ${r}: data inválida.`);continue;
+   }
+   if(seenFile.has(id))continue;
+   seenFile.add(id);imported.push({id,type,desc,amount,date,category});
+  }
+  if(errors.length)throw new Error(`Foram encontrados ${errors.length} problema(s). ${errors.slice(0,5).join(' ')}`);
+  if(!imported.length)throw new Error('Nenhum lançamento válido foi encontrado na aba Cadastros.');
+  const existing=new Set(entries.map(e=>String(e.id)));
+  const fresh=imported.filter(e=>!existing.has(String(e.id)));
+  const skipped=imported.length-fresh.length;
+  if(!fresh.length){status.textContent=`Nenhum lançamento novo. ${skipped} registro(s) já existiam e foram ignorados.`;alert(status.textContent);return}
+  const ok=confirm(`A planilha contém ${imported.length} lançamento(s) válido(s).\n\nNovos para adicionar: ${fresh.length}\nJá existentes (serão ignorados): ${skipped}\n\nOs dados atuais serão preservados. Deseja continuar?`);
+  if(!ok){status.textContent='Importação cancelada. Seus dados não foram alterados.';return}
+  entries=entries.concat(fresh);persist();
+  status.textContent=`Importação concluída: ${fresh.length} adicionado(s); ${skipped} duplicado(s) ignorado(s).`;
+  alert(status.textContent);
+ }catch(err){
+  console.error(err);status.textContent='Não foi possível importar a planilha.';
+  alert('Falha na importação: '+(err.message||'arquivo inválido')+'\n\nNenhum dado foi alterado.');
+ }finally{
+  if(btn){btn.disabled=false;btn.textContent='Importar lançamentos do Excel'}
+ }
+}
+
+function exportData(){let blob=new Blob([JSON.stringify(entries,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='backup-meu-financeiro.json';a.click();URL.revokeObjectURL(url)}
+function importData(){let f=$('importFile').files[0];if(!f){alert('Selecione um arquivo JSON.');return}let r=new FileReader();r.onload=()=>{try{let data=JSON.parse(r.result);if(!Array.isArray(data)||data.some(e=>!e.id||!['in','out'].includes(e.type)||!e.date||!(Number(e.amount)>0)))throw Error();if(confirm('Importar e substituir os lançamentos atuais?')){entries=data;persist();alert('Backup importado.')}}catch(e){alert('Arquivo inválido ou incompatível.')}};r.readAsText(f)}
+function clearData(){if(confirm('Isso apagará permanentemente os lançamentos salvos neste navegador. Deseja continuar?')){entries=[];persist()}}
+function renderAll(){renderDashboard();renderEntries();renderAnnual()}
+(function init(){let now=new Date();$('date').value=today();$('firstPay').value=today();$('loanDate').value=today();for(let y=now.getFullYear()-2;y<=now.getFullYear()+5;y++)$('yearSelect').add(new Option(y,y));$('yearSelect').value=now.getFullYear();setPreset();['from','to'].forEach(id=>$(id).addEventListener('change',renderDashboard));$('preset').addEventListener('change',setPreset);['listType','sort'].forEach(id=>$(id).addEventListener('change',renderEntries));$('yearSelect').addEventListener('change',renderAnnual);renderAll()})();
+</script>
+</body></html>
